@@ -1,3 +1,5 @@
+the prevoius version of thsi is in the [here](https://github.com/Bhadra-design/soical-app)
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
