@@ -17,10 +17,11 @@ import { SignUpValidation } from "@/lib/validation";
 import Loader from "@/components/shared/Loader";
 import { Link } from "react-router-dom";
 import { createUserAccount } from "@/lib/appwrite/api";
+import { useToast } from "@/components/ui/use-toast";
 
 const SignUpForm = () => {
-
-  const [isLoading, setIsLoading] = useState(false)
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<z.infer<typeof SignUpValidation>>({
     resolver: zodResolver(SignUpValidation),
@@ -35,8 +36,14 @@ const SignUpForm = () => {
   async function onSubmit(values: z.infer<typeof SignUpValidation>) {
     const newUser = await createUserAccount(values);
 
-    console.log(newUser);
-    
+    if (!newUser) {
+      return toast({
+        title: "Sign up failed!",
+        description: "Something went wrong",
+      });
+    }
+
+    // const session = await signInAccount(); 
   }
 
   return (
@@ -116,12 +123,18 @@ const SignUpForm = () => {
                 <Loader /> Loading...
                 {/* Loader Component */}
               </div>
-            ):(
+            ) : (
               "Sign Up"
             )}
           </Button>
-          <p className="text-small-regular text-light-2 text-center mt-2">Already have an account? 
-          <Link to="/sign-in" className="text-primary-500 text-small-semibold ml-1">Sign In</Link>
+          <p className="text-small-regular text-light-2 text-center mt-2">
+            Already have an account?
+            <Link
+              to="/sign-in"
+              className="text-primary-500 text-small-semibold ml-1"
+            >
+              Sign In
+            </Link>
           </p>
         </form>
       </div>
