@@ -2,6 +2,7 @@ import { useUserContext } from "@/context/AuthContext";
 import { formatDate } from "@/lib/utils";
 import { Models } from "appwrite";
 import { Link } from "react-router-dom";
+import PostStats from "./PostStats";
 
 type PostCardProps = {
   post: Models.Document;
@@ -9,8 +10,6 @@ type PostCardProps = {
 
 const PostCard = ({ post }: PostCardProps) => {
   const { user } = useUserContext();
-  console.log(post);
-  
 
   if (!post.creator) return;
 
@@ -60,7 +59,9 @@ const PostCard = ({ post }: PostCardProps) => {
           <p>{post.caption}</p>
           <ul className="flex gap-1 mt-2">
             {post.tags?.map((tag: string) => (
-              <li key={tag} className="text-light-3">#{tag}</li>
+              <li key={tag} className="text-light-3">
+                #{tag}
+              </li>
             ))}
           </ul>
         </div>
@@ -70,6 +71,7 @@ const PostCard = ({ post }: PostCardProps) => {
           className="post-card_image"
         />
       </Link>
+      <PostStats post={post} userId={user.id} />
     </div>
   );
 };

@@ -24,9 +24,10 @@ import { useCreatePost } from "@/lib/react-query/queriesAndMutations";
 
 type PostFormProps = {
   post?: Models.Document;
+  action: "create" | "update";
 };
 
-const PostForm = ({ post }: PostFormProps) => {
+const PostForm = ({ post, action }: PostFormProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { mutateAsync: createPost, isPending: isLoaingCreate } =
