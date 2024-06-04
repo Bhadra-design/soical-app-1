@@ -1,4 +1,4 @@
-import { ID, Query } from "appwrite";
+import { ID, ImageGravity, Query } from "appwrite";
 
 import { appwriteConfig, account, databases, storage, avatars } from "./config";
 import { IUpdatePost, INewPost, INewUser, IUpdateUser } from "@/types";
@@ -99,9 +99,123 @@ export async function getCurrentUser() {
 export async function signOutAccount() {
   try {
     const session = await account.deleteSession("current");
-    
+
     return session;
   } catch (error) {
     console.log(error);
+  }
+}
+
+export async function createPost(post: INewPost): Promise<any> {
+  try {
+    // Upload file to Appwrite storage
+    const uploadedFile = await uploadFile(post.file[0]);
+
+    if (!uploadedFile) throw new Error("File upload failed");
+
+    // Get file URL
+    const fileUrl = await getFilePreview(uploadedFile.$id);
+
+    if (!fileUrl) {
+      await deleteFile(uploadedFile.$id);
+      throw new Error("Invalid file URL");
+    }
+
+    // Convert tags into array
+    const tags = post.tags?.replace(/ /g, "").split(",") || [];
+
+    // Create post
+    const newPost = await databases.createDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.postCollectionId,
+      ID.unique(),
+      {
+        creator: post.userId,
+        caption: post.caption,
+        imageUrl: fileUrl,
+        imageId: uploadedFile.$id,
+        location: post.location,
+        tags: tags,
+      }
+    );
+
+    if (!newPost) {
+      await deleteFile(uploadedFile.$id);
+      throw new Error("Document creation failed");
+    }
+
+    return newPost;
+  } catch (error) {
+    console.error("Error creating post:", error);
+    return null;
+  }
+}
+
+export async function uploadFile(file: File) {
+  try {
+    const uploadedFile = await storage.createFile(
+      appwriteConfig.storageId,
+      ID.unique(),
+      file
+    );
+
+    return uploadedFile;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function getFilePreview(fileId: string): Promise<string | null> {
+  try {
+    const fileUrl: URL = storage.getFilePreview(
+      appwriteConfig.storageId,
+      fileId,
+      2000, // width
+      2000, // height
+      ImageGravity.Top,
+      100 // quality
+    );
+
+    // Convert URL object to string
+    const fileUrlString = fileUrl.toString();
+
+    // Verify the fileUrl is not longer than 2000 characters
+    if (fileUrlString.length > 2000) {
+      throw new Error("Invalid file URL format");
+    }
+
+    return fileUrlString;
+  } catch (error) {
+    console.error("Error fetching file preview:", error);
+    return null;
+  }
+}
+
+export async function deleteFile(fileId: string) {
+  try {
+    await storage.deleteFile(appwriteConfig.storageId, fileId);
+
+    return { status: "ok" };
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function getRecentPosts() {
+  try {
+    const posts = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.postCollectionId,
+      [Query.orderDesc("$createdAt"), Query.limit(20)]
+    );
+
+    if (!posts || !posts.documents) {
+      throw new Error("Failed to fetch posts");
+    }
+
+    return posts.documents;
+  } catch (error) {
+    console.error("Error fetching recent posts:", error);
+    throw error;
   }
 }
