@@ -16,11 +16,15 @@ import { Textarea } from "../ui/textarea";
 import FileUploader from "../shared/FileUploader";
 import { PostValidation } from "@/lib/validation";
 import { Models } from "appwrite";
-import { User } from "lucide-react";
 import { useUserContext } from "@/context/AuthContext";
 import { useToast } from "../ui/use-toast";
 import { useNavigate } from "react-router-dom";
-import { useCreatePost } from "@/lib/react-query/queriesAndMutations";
+import {
+  useCreatePost,
+  useDeletePost,
+  useUpdatePost,
+} from "@/lib/react-query/queriesAndMutations";
+import Loader from "../shared/Loader";
 
 type PostFormProps = {
   post?: Models.Document;
@@ -32,6 +36,10 @@ const PostForm = ({ post, action }: PostFormProps) => {
   const { toast } = useToast();
   const { mutateAsync: createPost, isPending: isLoaingCreate } =
     useCreatePost();
+  const { mutateAsync: updatePost, isPending: isLoaingUpdate } =
+    useUpdatePost();
+  const { mutateAsync: deletePost, isPending: isLoaingDelete } =
+    useDeletePost();
   const { user } = useUserContext();
 
   const form = useForm<z.infer<typeof PostValidation>>({
@@ -46,15 +54,35 @@ const PostForm = ({ post, action }: PostFormProps) => {
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof PostValidation>) {
-    const newPost = await createPost({ ...values, userId: user.id });
-
-    if (!newPost)
-      return toast({
-        title: "Post not created",
-        description: "Try again later",
+    if (post && action === "update") {
+      const updatedPost = await updatePost({
+        ...values,
+        postId: post.$id,
+        imageId: post?.imageId,
+        imageUrl: post?.imageUrl,
       });
 
-    navigate("/");
+      if (!updatedPost) {
+        return toast({
+          title: "Post not updated",
+          description: "Try again later",
+        });
+      }
+
+      navigate(`/posts/${post.$id}`);
+    }
+
+    if (action === "create") {
+      const newPost = await createPost({ ...values, userId: user.id });
+
+      if (!newPost)
+        return toast({
+          title: "Post not created",
+          description: "Try again later",
+        });
+
+      navigate("/");
+    }
   }
 
   return (
@@ -135,8 +163,10 @@ const PostForm = ({ post, action }: PostFormProps) => {
           <Button
             type="submit"
             className="shad-button_primary whitespace-nowrap"
+            disabled={isLoaingCreate || isLoaingUpdate}
           >
-            Submit
+            {isLoaingCreate || (isLoaingUpdate && <Loader />)}
+            {action === "create" ? "Create Post" : "Update Post"}
           </Button>
         </div>
       </form>
