@@ -1,5 +1,5 @@
 import { Models } from "appwrite";
-import React from "react";
+
 import { Link } from "react-router-dom";
 import { Button } from "../ui/button";
 
@@ -24,7 +24,11 @@ const UserCard = ({ creator }: UserCardProps) => {
           @{creator.username}
         </p>
       </div>
-      <Button type="button" size={"sm"} className="shad-button_primary px-5 mt-3">
+      <Button
+        type="button"
+        size={"sm"}
+        className="shad-button_primary px-5 mt-3"
+      >
         Follow
       </Button>
     </Link>

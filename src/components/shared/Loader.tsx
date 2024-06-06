@@ -1,7 +1,6 @@
-import React from "react";
 import { ring } from "ldrs";
 
-ring.register()
+ring.register();
 
 const Loader = () => {
   return (

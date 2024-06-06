@@ -3,8 +3,15 @@ import Loader from "@/components/shared/Loader";
 import { Button } from "@/components/ui/button";
 import { useUserContext } from "@/context/AuthContext";
 import { useGetUserById } from "@/lib/react-query/queriesAndMutations";
-import React from "react";
-import { Link, Outlet, Route, Routes, useLocation, useParams } from "react-router-dom";
+
+import {
+  Link,
+  Outlet,
+  Route,
+  Routes,
+  useLocation,
+  useParams,
+} from "react-router-dom";
 import LikedPosts from "./LikedPosts";
 
 interface StabBlockProps {
@@ -121,7 +128,7 @@ const Profile = () => {
           </Link>
         </div>
       )}
-       <Routes>
+      <Routes>
         <Route
           index
           element={<GridPostList posts={currentUser.posts} showUser={false} />}
