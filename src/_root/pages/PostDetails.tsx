@@ -9,7 +9,7 @@ import GridPostList from "@/components/shared/GridPostList";
 
 const PostDetails = () => {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { id = "" } = useParams();
   const { user } = useUserContext();
 
   const { data: post, isLoading } = useGetPostById(id);
