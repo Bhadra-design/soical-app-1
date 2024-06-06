@@ -13,7 +13,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { SignUpValidation } from "@/lib/validation";
+import { SignupValidation } from "@/lib/validation";
 import Loader from "@/components/shared/Loader";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
@@ -34,8 +34,8 @@ const SignUpForm = () => {
   const { mutateAsync: signInAccount, isPending: isSigningIn } =
     useSignInAccount();
 
-  const form = useForm<z.infer<typeof SignUpValidation>>({
-    resolver: zodResolver(SignUpValidation),
+  const form = useForm<z.infer<typeof SignupValidation>>({
+    resolver: zodResolver(SignupValidation),
     defaultValues: {
       name: "",
       username: "",
@@ -44,7 +44,7 @@ const SignUpForm = () => {
     },
   });
 
-  async function onSubmit(values: z.infer<typeof SignUpValidation>) {
+  async function onSubmit(values: z.infer<typeof SignupValidation>) {
     const newUser = await createUserAccount(values);
 
     if (!newUser) {
